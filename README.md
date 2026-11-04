@@ -57,6 +57,7 @@ The included profiles support:
 
 - **CYD / ESP32-2432S028** with ILI9341 display, microSD slot, onboard amplifier, and DAC audio on GPIO 26
 - **CYD RetroTV variant** with alternate button/display settings
+- **CYD Era TV** (`BOARD_CYD_ERA_TV`): the RetroTV board and case with a channel knob, volume buttons, on-screen display, and an offline gift mode. See the [build guide](docs/ERA_TV_BUILD.md) and [bill of materials](docs/ERA_TV_BOM.md).
 - **Original Mini TV hardware** using a 288×240 ST7789 display and external I2S audio
 
 The tested target for this release is the classic ESP32-2432S028 CYD shown above. ESP32-S3 and other CYD variants may use different pins or display controllers and are not drop-in compatible.
@@ -80,7 +81,7 @@ The firmware uses APIs from ESP32 core 2.0.17. Newer 3.x cores require compatibi
 2. Open `MiniTV/MiniTV.ino` in Arduino IDE. Keep every source file inside the `MiniTV` folder.
 3. Install the libraries listed above using Library Manager or their GitHub releases.
 4. Install ESP32 boards package 2.0.17.
-5. In `MiniTV/config.h`, enable exactly one hardware profile. The standard CYD profile is enabled by default.
+5. In `MiniTV/config.h`, enable exactly one hardware profile. The Era TV profile is enabled by default in this fork; select `BOARD_CYD` for a bare classic CYD.
 6. Select **ESP32 Dev Module** as the board.
 7. Select a partition scheme with enough application space for OTA updates (for example, a compatible OTA scheme rather than a no-OTA scheme).
 8. Compile and upload over USB.
@@ -158,6 +159,10 @@ On the standard CYD, the rear BOOT button is used:
 - Double click: previous channel
 - Hold 1–3 seconds: mute/unmute
 - Hold 3+ seconds: launcher/reset action configured for the active profile
+
+### Era TV front panel
+
+The `BOARD_CYD_ERA_TV` profile adds a rotary channel knob (its push switch acts as the button above), VOL+ and VOL− buttons on a resistor ladder, a green channel and volume on-screen display, and a short burst of TV static between channels. Its `WIFI_ENABLED 0` setting boots straight into playback without Wi-Fi so the TV works anywhere. Wiring and assembly are in the [Era TV build guide](docs/ERA_TV_BUILD.md).
 
 ## OTA updates
 

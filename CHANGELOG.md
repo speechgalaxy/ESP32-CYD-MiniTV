@@ -2,6 +2,21 @@
 
 All notable changes to ESP32 CYD MiniTV are documented here.
 
+## Unreleased
+
+### Added
+
+- `BOARD_CYD_ERA_TV` profile for the CYD 2USB board in the CYD Retro MiniTV case.
+- Rotary-encoder channel knob with a settle delay, analog TV static, and hiss between channels.
+- VOL+ and VOL− buttons on a single-pin resistor ladder, with auto-repeat and deferred saving.
+- Green on-screen display for channel and volume, drawn between video frames without flicker.
+- `WIFI_ENABLED` setting for an offline appliance build that never stops on the Wi-Fi setup screen.
+- Era TV bill of materials and step-by-step build guide in `docs/`.
+
+### Changed
+
+- The board button's click and double-click now go through the same tuner as the knob when front-panel controls are present.
+
 ## 1.0.1 - 2026-09-17
 
 - Added decoder callback compatibility for both libhelix 0.8.1 and 0.9.x.
