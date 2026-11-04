@@ -85,6 +85,9 @@ void buttonTask(void *parameter);
 void playVideoWithAudio(int channel);
 void videoController(int next);
 
+/* Channel knob, volume buttons, and on-screen display */
+#include "front_panel.h"
+
 // Direct hardware check for the CYD DAC2 (GPIO 26), onboard amplifier,
 // speaker connector, and speaker. This bypasses I2S and media decoding.
 static void playHardwareTestTone() {
@@ -107,7 +110,11 @@ static int drawMCU(JPEGDRAW *pDraw) {
 #ifdef BOARD_MINI_TV
   gfx->draw16bitRGBBitmap(pDraw->x, pDraw->y, pDraw->pPixels, pDraw->iWidth, pDraw->iHeight);
 #else
-  gfx->draw16bitRGBBitmap(pDraw->x + SCREEN_OFFSET_X, pDraw->y + SCREEN_OFFSET_Y, pDraw->pPixels, pDraw->iWidth, pDraw->iHeight);
+  const int x = pDraw->x + SCREEN_OFFSET_X;
+  const int y = pDraw->y + SCREEN_OFFSET_Y;
+  // Leave a visible on-screen display panel untouched.
+  if (frontPanelCoversBlock(x, y, pDraw->iWidth, pDraw->iHeight)) return 1;
+  gfx->draw16bitRGBBitmap(x, y, pDraw->pPixels, pDraw->iWidth, pDraw->iHeight);
 #endif
   total_show_video_ms += millis() - s;
   return 1;
@@ -241,8 +248,14 @@ void setup() {
   Serial.printf("videoIndex: %d, muted: %d, volume: %d, brightness: %d\n",
                 video_idx, (int)is_muted, audio_volume, screen_brightness);
 
+  frontPanelBegin();
+
+#if !defined(WIFI_ENABLED) || WIFI_ENABLED
   startWebControl();
   Serial.printf("Free heap after Wi-Fi setup: %u bytes\n", ESP.getFreeHeap());
+#else
+  Serial.println("Wi-Fi disabled in config.h; web control is unavailable");
+#endif
 
 #if defined(WIFI_STARTUP_TEST_MS) && (WIFI_STARTUP_TEST_MS > 0)
   Serial.printf("Wi-Fi diagnostic window: open the web page now; playback starts in %u seconds\n",
@@ -282,6 +295,7 @@ void loop() {
     resetToLauncher();
   }
 #endif
+  frontPanelServiceOsd();
   vTaskDelay(pdMS_TO_TICKS(2));
 }
 
@@ -364,10 +378,10 @@ void buttonTask(void *parameter) {
     if (click_count > 0 && (millis() - last_release_time > 300)) {
       if (click_count == 1) {
         Serial.println("SINGLE_CLICK (Next)");
-        videoController(1);
+        frontPanelStepChannel(1);
       } else if (click_count >= 2) {
         Serial.println("DOUBLE_CLICK (Back)");
-        videoController(-1);
+        frontPanelStepChannel(-1);
       }
       click_count = 0;
     }
@@ -381,6 +395,7 @@ void playVideoWithAudio(int channel) {
   current_video_title = "Loading...";
   web_stop_requested = false;
   playback_active = true;
+  frontPanelPlayChannelStatic();
   char dirPath[64];
   if (channel == 0) {
     strcpy(dirPath, "/Videos/random");
@@ -611,6 +626,7 @@ void playVideoWithAudio(int channel) {
     } else {
       ++skipped_frames;
     }
+    frontPanelServiceOsd();
 
     while (millis() < next_frame_ms) {
       if (next_frame_ms - millis() > 1) {

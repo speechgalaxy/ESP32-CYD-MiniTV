@@ -14,8 +14,9 @@
 
 // --- Hardware Profile Selection (Uncomment only one) ---
 //#define BOARD_MINI_TV
-#define BOARD_CYD
+//#define BOARD_CYD
 //#define BOARD_CYD_RETROTV
+#define BOARD_CYD_ERA_TV
 // ------------------------------------------------------
 
 #ifdef BOARD_MINI_TV
@@ -123,6 +124,60 @@
   #define SCREEN_BRIGHTNESS 128 // 0-255
   #define AUDIO_VOLUME 100 // 0-200; values above 100 apply digital boost
   #define LAUNCHER_RESET 2 // 0 = Disabled, 1 = Retro-Go, 2 = CYD-Launcher
+#endif
+
+#ifdef BOARD_CYD_ERA_TV
+  // Era TV gift build: CYD 2.8" (2USB) in the CYD Retro MiniTV case with a
+  // channel knob and volume buttons. Wiring: docs/ERA_TV_BUILD.md
+  #define MULTI_BUTTON 3 // Knob push switch on RX (P1 connector)
+  #define CS 15
+  #define SCK 14
+  #define MOSI 13
+  #define MISO 12
+  #define DC 2
+  #define RST -1
+  #define BLK 21
+  #define USE_INTERNAL_DAC
+  #define AUDIO_ENABLE_PIN 4 // Active-low enable for the onboard audio amplifier
+  #define I2S_MCLK -1
+  #define I2S_SCLK -1
+  #define I2S_LRCLK -1
+  #define I2S_DOUT 26
+  #define I2S_DIN -1
+  #define SD_SCK 18
+  #define SD_MOSI 23
+  #define SD_MISO 19
+  #define SD_CS 5
+
+  // Display Settings (CYD ILI9341)
+  #define SCREEN_WIDTH 320
+  #define SCREEN_HEIGHT 240
+  #define SCREEN_ROTATION 1 // 1 & 3 are both landscape, 0 & 2 if you want portrait
+  #define SCREEN_IPS false
+  #define SCREEN_INVERT true // 2USB boards; set false if colors look like a photo negative
+  #define SCREEN_OFFSET_X 0
+  #define SCREEN_OFFSET_Y 0
+  #define MAX_WIDTH 320
+  #define DISPLAY_SPI_HOST HSPI
+  #define SD_SPI_HOST VSPI
+  #define VIDEO_FPS 24 // Must match the converter's 320x240 output for A/V sync
+  #define SCREEN_BRIGHTNESS 128 // 0-255
+  #define AUDIO_VOLUME 100 // 0-200; values above 100 apply digital boost
+  #define LAUNCHER_RESET 0 // Holding the knob only mutes; never leave the TV app
+
+  // Front-panel controls (front_panel.h)
+  #define ENCODER_PIN_A 27 // CN1
+  #define ENCODER_PIN_B 22 // CN1
+  #define ENCODER_STEPS_PER_DETENT 4 // 4 for 20-detent EC11 encoders, 2 for 30-detent
+  #define ENCODER_REVERSE 0 // Set to 1 if turning clockwise lowers the channel
+  #define VOLUME_LADDER_PIN 35 // P3; 10k pull-up to 3V3, Vol+ to GND, Vol- through 10k to GND
+  #define VOLUME_STEP 10
+  #define CHANNEL_STATIC_MS 300 // TV static between knob channel changes; 0 disables
+
+  // Offline appliance: boots straight into playback with Wi-Fi and the web
+  // interface off, so the TV never stops on the Wi-Fi setup screen in a home
+  // where it has no saved network. Set to 1 while building and loading media.
+  #define WIFI_ENABLED 0
 #endif
 
 #endif
